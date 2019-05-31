@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RulesConfiguration>
+    <Specifications>
+        <Specification ID="spec-imsc1">
+            <selectFilterInitial/>
+        </Specification>
+        <Specification ID="spec-imsc1-text">
+            <selectFilterInitial/>
+        </Specification>
+        <Specification ID="spec-imsc1.0.1">
+            <selectFilterInitial/>
+        </Specification>
+        <Specification ID="spec-imsc1.0.1-text">
+            <selectFilterInitial/>
+        </Specification>
+    </Specifications>
+</RulesConfiguration>
