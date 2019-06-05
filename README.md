@@ -41,7 +41,7 @@ A respective XSD exists in the [`xcf` repository](https://github.com/IRT-Open-So
 
 This Schematron file contains the implementation for constraint checks.
 For more convenient use it should be converted to an XSLT file using the
-[Schematron XSLT contained in the `xcf` repository](https://github.com/IRT-Open-Source/xcf/xslt/schematron).
+[Schematron XSLT contained in the `xcf` repository](https://github.com/IRT-Open-Source/xcf/tree/master/xslt/schematron).
 
 ### /irt_functions.xsl
 
@@ -57,3 +57,8 @@ Currently the config file specifies which specifications from the
 constraints file are selected by default. Further properties may be
 added in the future. The config file is intended to be used by other
 applications that make use of this set of constraints/rules.
+
+
+## License
+The XCF TTML suite offered by Institut für Rundfunktechnik GmbH is
+subject to the [MIT license](LICENSE).
