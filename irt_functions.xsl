@@ -63,7 +63,7 @@
             
             <!-- continue, if document encoding present -->
             <xsl:if test="matches($doc_decl, $doc_encoding_regex)">
-                <xsl:value-of select="replace($doc_decl, $doc_encoding_regex, '$2')"/>
+                <xsl:sequence select="replace($doc_decl, $doc_encoding_regex, '$2')"/>
             </xsl:if>
         </xsl:if>
     </xsl:function>
@@ -86,13 +86,13 @@
     <xsl:function name="subcheck:string_to_unit" as="xs:string">
         <!-- returns the unit part of a string -->
         <xsl:param name="s" as="xs:string"/>
-        <xsl:value-of select="replace($s, '^[-+]?\d*\.?\d+', '')"/>
+        <xsl:sequence select="replace($s, '^[-+]?\d*\.?\d+', '')"/>
     </xsl:function>
 
     <xsl:function name="subcheck:string_to_amount" as="xs:decimal">
         <!-- returns the amount part of a string, as a number -->
         <xsl:param name="s" as="xs:string"/>
-        <xsl:value-of select="xs:decimal(replace($s, '^([-+]?\d*\.?\d+).*$', '$1'))"/>
+        <xsl:sequence select="xs:decimal(replace($s, '^([-+]?\d*\.?\d+).*$', '$1'))"/>
     </xsl:function>
     
     <xsl:function name="subcheck:time_expression_to_format" as="xs:string">
@@ -109,7 +109,7 @@
         <!-- returns if the signalling for a specific IMSC1 profile is present -->
         <xsl:param name="tt" as="node()"/>
         <xsl:param name="designator" as="xs:string"/>
-        <xsl:value-of select="
+        <xsl:sequence select="
             (normalize-space($tt/@ttp:profile) eq $designator) or
             ($tt/tt:head/ttp:profile/@use[normalize-space(.) eq $designator]) or
             ($tt/tt:head/tt:metadata/ebuttm:documentMetadata/ebuttm:conformsToStandard[normalize-space(.) eq $designator])
@@ -121,7 +121,7 @@
         <xsl:param name="start" as="node()"/>
         <xsl:param name="end" as="node()"/>
         <xsl:param name="checked_styles" as="xs:string*"/>
-        <xsl:value-of select="
+        <xsl:sequence select="
             some $s in tokenize(normalize-space($start/@style), ' ') satisfies (
                 if ($s eq $end/@xml:id)
                 then true()
@@ -146,7 +146,7 @@
         </xsl:if>
         
         <!-- count all lines with tt:span or non-empty (normalized) text -->
-        <xsl:value-of select="
+        <xsl:sequence select="
             count(
                 distinct-values(
                     for $x in $p//node()[self::tt:span or (self::text() and normalize-space(.) ne '')]
@@ -167,14 +167,14 @@
         <xsl:choose>
             <!-- clock time with (or without) fraction -->
             <xsl:when test="matches($tc_value, '^\d{2,}:[0-5]\d:[0-5]\d(\.\d+)?$')">
-                <xsl:value-of select="true()"/>
+                <xsl:sequence select="true()"/>
             </xsl:when>
             <!-- clock time with frames (TODO: sub-frames) -->
             <xsl:when test="matches($tc_value, '^\d{2,}:[0-5]\d:[0-5]\d:\d{2,}$')">
                 <xsl:variable name="frames" select="xs:decimal(replace($tc_value, '.*:(\d{2,})$', '$1'))"/>
                 
                 <!-- if frame rate present, ensure frames in range -->
-                <xsl:value-of select="
+                <xsl:sequence select="
                     if(normalize-space($tt/@ttp:frameRate) ne '')
                     then $frames lt xs:decimal($tt/@ttp:frameRate)
                     else not($check_dependencies)
@@ -185,21 +185,21 @@
                 <xsl:choose>
                     <!-- with frames -->
                     <xsl:when test="matches($tc_value, '^\d+(\.\d+)?f$')">
-                        <xsl:value-of select="not($check_dependencies) or normalize-space($tt/@ttp:frameRate) ne ''"/>
+                        <xsl:sequence select="not($check_dependencies) or normalize-space($tt/@ttp:frameRate) ne ''"/>
                     </xsl:when>
                     <!-- with ticks -->
                     <xsl:when test="matches($tc_value, '^\d+(\.\d+)?t$')">
-                        <!--<xsl:value-of select="normalize-space($tt/@ttp:tickRate) ne ''"/>-->
-                        <xsl:value-of select="true()"/>
+                        <!--<xsl:sequence select="normalize-space($tt/@ttp:tickRate) ne ''"/>-->
+                        <xsl:sequence select="true()"/>
                     </xsl:when>
                     <!-- other cases -->
                     <xsl:otherwise>
-                        <xsl:value-of select="true()"/>
+                        <xsl:sequence select="true()"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="false()"/>
+                <xsl:sequence select="false()"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:function>
@@ -210,13 +210,13 @@
         
         <xsl:choose>
             <xsl:when test="$tt/@ttp:tickRate">
-                <xsl:value-of select="xs:decimal($tt/@ttp:tickRate)"/>
+                <xsl:sequence select="xs:decimal($tt/@ttp:tickRate)"/>
             </xsl:when>
             <xsl:when test="$tt/@ttp:frameRate">
-                <xsl:value-of select="xs:decimal($tt/@ttp:frameRate)"/>
+                <xsl:sequence select="xs:decimal($tt/@ttp:frameRate)"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="$defaultTickRate"/>
+                <xsl:sequence select="$defaultTickRate"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:function>
@@ -240,15 +240,15 @@
                 
                 <xsl:choose>
                     <xsl:when test="$tc_remainder eq ''">
-                        <xsl:value-of select="$int_seconds"/>
+                        <xsl:sequence select="$int_seconds"/>
                     </xsl:when>
                     <xsl:when test="matches($tc_remainder, '^\.\d+$')">
                         <!-- timecode with fraction -->
-                        <xsl:value-of select="$int_seconds + xs:decimal(concat('0.', $parts[4]))"/>
+                        <xsl:sequence select="$int_seconds + xs:decimal(concat('0.', $parts[4]))"/>
                     </xsl:when>
                     <xsl:when test="matches($tc_remainder, '^:\d{2,}$')">
                         <!-- timecode with frames -->
-                        <xsl:value-of select="$int_seconds + xs:decimal($parts[4]) div xs:decimal($tt/@ttp:frameRate)"/>
+                        <xsl:sequence select="$int_seconds + xs:decimal($parts[4]) div xs:decimal($tt/@ttp:frameRate)"/>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:message terminate="yes">
@@ -261,12 +261,12 @@
                 <xsl:variable name="tc_value" select="replace($tc, $offset_time_end, '')"/>
                 <xsl:variable name="tc_unit" select="replace($tc, $offset_time_begin, '')"/>
                 <xsl:choose>
-                    <xsl:when test="$tc_unit eq 'h'"><xsl:value-of select="xs:decimal($tc_value) * 3600"/></xsl:when>
-                    <xsl:when test="$tc_unit eq 'm'"><xsl:value-of select="xs:decimal($tc_value) * 60"/></xsl:when>
-                    <xsl:when test="$tc_unit eq 's'"><xsl:value-of select="xs:decimal($tc_value)"/></xsl:when>
-                    <xsl:when test="$tc_unit eq 'ms'"><xsl:value-of select="xs:decimal($tc_value) * 0.001"/></xsl:when>
-                    <xsl:when test="$tc_unit eq 'f'"><xsl:value-of select="xs:decimal($tc_value) div xs:decimal($tt/@ttp:frameRate)"/></xsl:when>
-                    <xsl:when test="$tc_unit eq 't'"><xsl:value-of select="xs:decimal($tc_value) div subcheck:tick_rate($tt)"/></xsl:when>
+                    <xsl:when test="$tc_unit eq 'h'"><xsl:sequence select="xs:decimal($tc_value) * 3600"/></xsl:when>
+                    <xsl:when test="$tc_unit eq 'm'"><xsl:sequence select="xs:decimal($tc_value) * 60"/></xsl:when>
+                    <xsl:when test="$tc_unit eq 's'"><xsl:sequence select="xs:decimal($tc_value)"/></xsl:when>
+                    <xsl:when test="$tc_unit eq 'ms'"><xsl:sequence select="xs:decimal($tc_value) * 0.001"/></xsl:when>
+                    <xsl:when test="$tc_unit eq 'f'"><xsl:sequence select="xs:decimal($tc_value) div xs:decimal($tt/@ttp:frameRate)"/></xsl:when>
+                    <xsl:when test="$tc_unit eq 't'"><xsl:sequence select="xs:decimal($tc_value) div subcheck:tick_rate($tt)"/></xsl:when>
                     <xsl:otherwise>
                         <xsl:message terminate="yes">
                             The value '<xsl:value-of select="$tc_raw"/>' is not a valid timecode.
@@ -295,11 +295,11 @@
                 <xsl:variable name="parts" select="tokenize($tc, ':')"/>
                 <xsl:variable name="int_seconds" select="xs:decimal($parts[1]) * 3600 + xs:decimal($parts[2]) * 60 + xs:decimal($parts[3])"/>
                 <xsl:variable name="fraction" select="if (count($parts) eq 4) then xs:decimal($parts[4]) else 0"/>
-                <xsl:value-of select="$int_seconds * xs:decimal($tt/@ttp:frameRate) + $fraction"/>
+                <xsl:sequence select="$int_seconds * xs:decimal($tt/@ttp:frameRate) + $fraction"/>
             </xsl:when>
             <!-- handle offset time with frames -->
             <xsl:when test="matches($tc, '^\d+(\.\d+)?f$')">
-                <xsl:value-of select="xs:decimal(replace($tc, 'f$', ''))"/>
+                <xsl:sequence select="xs:decimal(replace($tc, 'f$', ''))"/>
             </xsl:when>
         </xsl:choose>
     </xsl:function>
@@ -324,7 +324,7 @@
                 <xsl:variable name="raw_result" select="$min_f - sum($subtr_f)"/>
                 
                 <!-- convert result to seconds, if needed -->
-                <xsl:value-of select="$raw_result div (if (not($return_frames)) then xs:decimal($tt/@ttp:frameRate) else 1)"/>
+                <xsl:sequence select="$raw_result div (if (not($return_frames)) then xs:decimal($tt/@ttp:frameRate) else 1)"/>
             </xsl:when>
             <!-- do calculation in seconds domain -->
             <xsl:otherwise>
@@ -333,7 +333,7 @@
                 <xsl:variable name="raw_result" select="$min_s - sum($subtr_s)"/>
                 
                 <!-- convert result to frames, if needed -->
-                <xsl:value-of select="$raw_result * (if ($return_frames) then xs:decimal($tt/@ttp:frameRate) else 1)"/>
+                <xsl:sequence select="$raw_result * (if ($return_frames) then xs:decimal($tt/@ttp:frameRate) else 1)"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:function>
@@ -344,10 +344,10 @@
         
         <xsl:choose>
             <xsl:when test="$p/@begin and subcheck:timecode_valid($p/@begin, root($p)/tt:tt, true()) and $p/@end and subcheck:timecode_valid($p/@end, root($p)/tt:tt, true())">
-                <xsl:value-of select="subcheck:tc_diff($p/@end, $p/@begin, root($p)/tt:tt, false())"/>
+                <xsl:sequence select="subcheck:tc_diff($p/@end, $p/@begin, root($p)/tt:tt, false())"/>
             </xsl:when>
             <xsl:when test="$p/@dur and subcheck:timecode_valid($p/@dur, root($p)/tt:tt, true())">
-                <xsl:value-of select="subcheck:tc2secs($p/@dur, root($p)/tt:tt)"/>
+                <xsl:sequence select="subcheck:tc2secs($p/@dur, root($p)/tt:tt)"/>
             </xsl:when>
         </xsl:choose>
     </xsl:function>
@@ -359,10 +359,10 @@
         
         <xsl:choose>
             <xsl:when test="$p/@end and subcheck:timecode_valid($p/@end, root($p)/tt:tt, true()) and $p2/@begin and subcheck:timecode_valid($p2/@begin, root($p)/tt:tt, true())">
-                <xsl:value-of select="subcheck:tc_diff($p2/@begin, $p/@end, root($p)/tt:tt, true())"/>
+                <xsl:sequence select="subcheck:tc_diff($p2/@begin, $p/@end, root($p)/tt:tt, true())"/>
             </xsl:when>
             <xsl:when test="$p/@begin and subcheck:timecode_valid($p/@begin, root($p)/tt:tt, true()) and $p/@dur and subcheck:timecode_valid($p/@dur, root($p)/tt:tt, true()) and $p2/@begin and subcheck:timecode_valid($p2/@begin, root($p)/tt:tt, true())">
-                <xsl:value-of select="subcheck:tc_diff($p2/@begin, ($p/@dur, $p/@begin), root($p)/tt:tt, true())"/>
+                <xsl:sequence select="subcheck:tc_diff($p2/@begin, ($p/@dur, $p/@begin), root($p)/tt:tt, true())"/>
             </xsl:when>
         </xsl:choose>
     </xsl:function>
@@ -373,14 +373,14 @@
         <xsl:variable name="p2" select="$p/following-sibling::tt:p[1]"/>
         
         <xsl:if test="$p/@begin and subcheck:timecode_valid($p/@begin, root($p)/tt:tt, true()) and $p2/@begin and subcheck:timecode_valid($p2/@begin, root($p)/tt:tt, true())">
-            <xsl:value-of select="subcheck:tc_diff($p2/@begin, $p/@begin, root($p)/tt:tt, false())"/>
+            <xsl:sequence select="subcheck:tc_diff($p2/@begin, $p/@begin, root($p)/tt:tt, false())"/>
         </xsl:if>
     </xsl:function>
     
     <xsl:function name="subcheck:get_tts_ruby" as="xs:string">
         <xsl:param name="n" as="node()"/>
         <xsl:param name="everywhere" as="xs:boolean"/><!-- don't restrict search to elements on which the attribute applies -->
-        <xsl:value-of select="subcheck:get_style_property($n, xs:QName('tts:ruby'), false(), if($everywhere) then () else xs:QName('tt:span'), 'none', true())"/>
+        <xsl:sequence select="subcheck:get_style_property($n, xs:QName('tts:ruby'), false(), if($everywhere) then () else xs:QName('tt:span'), 'none', true())"/>
     </xsl:function>
 
     <xsl:function name="subcheck:get_style_property" as="xs:string">
@@ -397,7 +397,7 @@
         
         <!-- return final property value -->
         <xsl:variable name="property_values" select="$default, if($use_initial) then $initial_value else (), subcheck:get_style_property_values($n, $property, $inherited, $specified_on, '', ())"/>
-        <xsl:value-of select="$property_values[last()]"/>
+        <xsl:sequence select="$property_values[last()]"/>
         
         <!-- ##### DEBUG ##### -->
         <!--<xsl:message><xsl:value-of select="concat('Values (', count($property_values) , '): ''', string-join($property_values, ''', '''), '''')"/></xsl:message>-->
@@ -505,7 +505,7 @@
         <xsl:param name="tt" as="node()"/>
         
         <xsl:for-each select="$tt/tt:body//tt:p">
-            <xsl:value-of select="subcheck:get_reading_speed(.)"/>
+            <xsl:sequence select="subcheck:get_reading_speed(.)"/>
         </xsl:for-each>
     </xsl:function>
     
@@ -527,7 +527,7 @@
                 "/>
             
             <!-- return computed result -->
-            <xsl:value-of select="$chars div $secs"/>
+            <xsl:sequence select="$chars div $secs"/>
         </xsl:if>
     </xsl:function>
     
@@ -540,7 +540,7 @@
               <xsl:variable name="codePoint" select="." as="xs:decimal"/>
               <xsl:variable name="character" select="codepoints-to-string($codePoint)"/>
               <xsl:choose>
-                  <xsl:when test="$codePoint = $allowedGlyphs"><xsl:value-of select="$character"/></xsl:when>
+                  <xsl:when test="$codePoint = $allowedGlyphs"><xsl:sequence select="$character"/></xsl:when>
                   <xsl:otherwise><unsupported><xsl:value-of select="concat('*', $character, ' (&amp;#', $codePoint, ';)', '*')"/></unsupported></xsl:otherwise>
               </xsl:choose>               
           </xsl:for-each>
